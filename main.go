@@ -5,6 +5,7 @@ import (
 	"html/template"
 	"log"
 	"net/http"
+	"os"
 
 	"json_parser/lexer"
 	"json_parser/parser"
@@ -60,11 +61,30 @@ func renderPage(w http.ResponseWriter, data pageData) {
 }
 
 func main() {
+	port := os.Getenv("PORT")
+	if port == "" {
+		port = "8080"
+	}
+
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
+		if r.Method != http.MethodGet {
+			http.Error(w, "method not allowed", http.StatusMethodNotAllowed)
+			return
+		}
 		renderPage(w, pageData{Input: `{"name":"Shreyash","age":25,"active":true,"tags":["go","json"]}`})
 	})
 
+	http.HandleFunc("/healthz", func(w http.ResponseWriter, r *http.Request) {
+		w.WriteHeader(http.StatusOK)
+		_, _ = w.Write([]byte("ok"))
+	})
+
 	http.HandleFunc("/parse", func(w http.ResponseWriter, r *http.Request) {
+		if r.Method != http.MethodPost {
+			http.Error(w, "method not allowed", http.StatusMethodNotAllowed)
+			return
+		}
+
 		if err := r.ParseForm(); err != nil {
 			http.Error(w, "invalid form", http.StatusBadRequest)
 			return
@@ -85,8 +105,8 @@ func main() {
 		renderPage(w, data)
 	})
 
-	log.Println("Server running at http://localhost:8080")
-	if err := http.ListenAndServe(":8080", nil); err != nil {
+	log.Printf("Server running on :%s", port)
+	if err := http.ListenAndServe(":"+port, nil); err != nil {
 		log.Fatal(err)
 	}
 }
