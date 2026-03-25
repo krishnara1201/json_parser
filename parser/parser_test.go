@@ -1,8 +1,8 @@
 package parser
 
 import (
-	"json-parser/ast"
-	"json-parser/lexer"
+	"json_parser/ast"
+	"json_parser/lexer"
 	"testing"
 )
 

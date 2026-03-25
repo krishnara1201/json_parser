@@ -2,8 +2,8 @@ package parser
 
 import (
 	"fmt"
-	"json-parser/ast"
-	"json-parser/lexer"
+	"json_parser/ast"
+	"json_parser/lexer"
 	"strconv"
 )
 
@@ -87,8 +87,7 @@ func (p *Parser) parseValue() ast.JSONValue {
 func (p *Parser) parseObject() ast.JSONObject {
 	obj := make(ast.JSONObject)
 
-	if p.peekToken.Type == lexer.RBRACE {
-		p.nextToken()
+	if p.peekTokenIs(lexer.RBRACE) {
 		p.nextToken()
 		return obj
 	}
@@ -109,12 +108,11 @@ func (p *Parser) parseObject() ast.JSONObject {
 		value := p.parseValue()
 		obj[key] = value
 
-		if p.peekToken.Type == lexer.COMMA {
+		if p.peekTokenIs(lexer.COMMA) {
 			p.nextToken()
 			continue
 		}
-		if p.peekToken.Type == lexer.RBRACE {
-			p.nextToken()
+		if p.peekTokenIs(lexer.RBRACE) {
 			p.nextToken()
 			break
 		}
@@ -127,8 +125,7 @@ func (p *Parser) parseObject() ast.JSONObject {
 func (p *Parser) parseArray() ast.JSONArray {
 	var arr ast.JSONArray
 
-	if p.peekToken.Type == lexer.RBRACKET {
-		p.nextToken()
+	if p.peekTokenIs(lexer.RBRACKET) {
 		p.nextToken()
 		return arr
 	}
@@ -138,12 +135,11 @@ func (p *Parser) parseArray() ast.JSONArray {
 		value := p.parseValue()
 		arr = append(arr, value)
 
-		if p.peekToken.Type == lexer.COMMA {
+		if p.peekTokenIs(lexer.COMMA) {
 			p.nextToken()
 			continue
 		}
 		if p.peekTokenIs(lexer.RBRACKET) {
-			p.nextToken()
 			p.nextToken()
 			break
 		}
